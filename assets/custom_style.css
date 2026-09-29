@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #0F172A;
+}
+
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color:#0F172A;
+    margin-bottom: 0.25rem;
+    text-transform: capitalize;
+}
+
+.dashboard-subtitle {
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #64748B;
+    margin-bottom: 1.5rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.element-container, .stMarkdown, .student-card, .stDataFrame, div[data-testid="stForm"] {
+    animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stButton > button, div[data-testid="stForm"] button {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+.stButton > button:hover, div[data-testid="stForm"] button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -4px rgba(37, 99, 235, 0.3) !important;
+}
+
+.stButton > button:active, div[data-testid="stForm"] button:active {
+    transform: translateY(1px);
+}

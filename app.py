@@ -2,6 +2,7 @@
 import os
 import pandas as pd
 import requests
+from pathlib import Path
 import streamlit as st
 
 from module.calculator import tentukan_predikat
@@ -17,6 +18,29 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+# fungsi load css global
+def load_css(css_file_path: str):
+    path = Path(css_file_path)
+    if path.is_file():
+        with open(path, "r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+load_css("assets/custom_stylee.css")
+
+st.markdown(
+    '<div class="dashboard-title">Academic Evaluation Dashboard</div',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="dashboard-subtitle">Sistem pemantauan dan evaluasi nilai mahasiswa</div>',
+    unsafe_allow_html=True,
+)
+
+st.success("✅ Day 1 Selesai: Struktur folder dan CSS Global berhasil dimuat!")
+st.button("Uji Coba Animasi Tombol")
 
 # SIDEBAR: UPLOAD, SEEDER & PROFIL VIA API
 with st.sidebar:
