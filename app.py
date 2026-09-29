@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from pathlib import Path
 import streamlit as st
-
+from components.header_card import render_student_header
 from module.calculator import tentukan_predikat
 from module.exporter import konversi_ke_excel
 
@@ -29,6 +29,8 @@ def load_css(css_file_path: str):
 
 
 load_css("assets/custom_stylee.css")
+
+render_student_header(npm="50422999", username="vito_dev", status_aktivasi="Aktif")
 
 st.markdown(
     '<div class="dashboard-title">Academic Evaluation Dashboard</div',
