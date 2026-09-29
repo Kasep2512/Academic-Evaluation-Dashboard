@@ -88,3 +88,56 @@ html, body, [class*="css"] {
     border-radius: 50%;
     margin-right: 6px;
 }
+
+[data-testid="stSidebar"] {
+    background-color: #F8FAFC !important;
+    border-right: 1px solid #E2E8F0 !important;
+}
+
+.sidebar-header {
+    padding: 12px 0 20px 0;
+    text-align: center;
+    border-bottom: 1px solid #E2E8F0;
+    margin-bottom: 20px;
+}
+
+.sidebar-brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+div[data-testid="stSidebar"] .stRadio > label {
+    display: none; /* Sembunyikan label bawaan 'Choose option' */
+}
+
+div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] {
+    gap: 8px;
+}
+
+div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+    background-color: transparent;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #475569;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
+    background-color: #F1F5F9;
+    color: #2563EB;
+}
+
+div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label[data-checked="true"] {
+    background-color: #EFF6FF !important;
+    color: #2563EB !important;
+    font-weight: 600 !important;
+    border-color: #BFDBFE !important;
+}

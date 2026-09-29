@@ -1,11 +1,23 @@
 """Modul kalkulasi akademik: konversi bobot mutu, kalkulasi IPK/IPS, dan predikat kelulusan."""
 
-BOBOT_MUTU = {"A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "E": 0.0}
+BOBOT_MUTU = {
+    "A": 4.0,
+    "A-": 3.7,
+    "B+": 3.3,
+    "B": 3.0,
+    "B-": 2.7,
+    "C+": 2.3,
+    "C": 2.0,
+    "D": 1.0,
+    "E": 0.0,
+}
 
 
 def ambil_bobot(nilai: str) -> float:
     """Mengembalikan bobot angka dari huruf mutu nilai."""
-    return BOBOT_MUTU.get(nilai.strip().upper(), 0.0)
+    if not nilai:
+        return 0.0
+    return BOBOT_MUTU.get(str(nilai).strip().upper(), 0.0)
 
 
 def hitung_ipk(daftar_matkul: list[dict]) -> float:
@@ -16,11 +28,11 @@ def hitung_ipk(daftar_matkul: list[dict]) -> float:
     if not daftar_matkul:
         return 0.0
 
-    total_sks = sum(m["sks"] for m in daftar_matkul)
+    total_sks = sum(int(m.get("sks", 0)) for m in daftar_matkul)
     if total_sks == 0:
         return 0.0
 
-    total_mutu = sum(m["sks"] * ambil_bobot(m["nilai"]) for m in daftar_matkul)
+    total_mutu = sum(int(m.get("sks", 0)) * ambil_bobot(m.get("nilai", "")) for m in daftar_matkul)
     return round(total_mutu / total_sks, 2)
 
 
@@ -54,9 +66,8 @@ def hitung_target_ips(sks_lalu: int, ipk_lalu: float, sks_rencana: int, target_i
     mutu_dibutuhkan = mutu_total_target - mutu_lalu
     ips_dibutuhkan = round(mutu_dibutuhkan / sks_rencana, 2)
 
-    # Evaluasi secara matematis (maksimal IPS adalah 4.00)
     tercapai = ips_dibutuhkan <= 4.00
-    bisa_santai = ips_dibutuhkan <= 0.00  # Target sudah terlampaui
+    bisa_santai = ips_dibutuhkan <= 0.00
 
     return {
         "sks_total_nanti": sks_total_akhir,
@@ -68,7 +79,7 @@ def hitung_target_ips(sks_lalu: int, ipk_lalu: float, sks_rencana: int, target_i
             else (
                 "Target IPK sudah terlampaui bahkan tanpa nilai tambahan."
                 if bisa_santai
-                else "Target tidak memungkinkan secara matematis (butuh IPS > 4.00)."
+                else ("Target tidak memungkinkan secara matematis (butuh IPS > 4.00).")
             )
         ),
     }

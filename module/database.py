@@ -1,12 +1,14 @@
 """Modul operasi basis data SQLite untuk profil dan riwayat nilai mahasiswa."""
 
-import sqlite3
 from pathlib import Path
 import sqlite3
 import pandas as pd
-from module.calculator import BOBOT_MUTU
 
-DB_FILE = Path("akademik.db")
+try:
+    from module.calculator import BOBOT_MUTU
+except ImportError:
+    BOBOT_MUTU = {"A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "E": 0.0}
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "akademik.db"
 
@@ -20,7 +22,7 @@ def buat_koneksi():
 
 def inisialisasi_database():
     """Membuat tabel profil_mahasiswa dan riwayat_nilai jika belum ada."""
-    with sqlite3.connect(DB_FILE) as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS profil_mahasiswa (
@@ -50,14 +52,19 @@ def inisialisasi_database():
 def simpan_hasil_ekstraksi(profil: dict, daftar_nilai: list[dict]):
     """Menyimpan data hasil parsing PDF ke dalam database SQLite."""
     inisialisasi_database()
-    with sqlite3.connect(DB_FILE) as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute(
             """
             INSERT OR REPLACE INTO profil_mahasiswa (npm, nama, jurusan, ipk_dokumen)
             VALUES (?, ?, ?, ?)
             """,
-            (profil.get("npm"), profil.get("nama"), profil.get("jurusan"), profil.get("ipk_dokumen")),
+            (
+                profil.get("npm"),
+                profil.get("nama"),
+                profil.get("jurusan"),
+                profil.get("ipk_dokumen"),
+            ),
         )
 
         cursor.execute("DELETE FROM riwayat_nilai WHERE npm = ?", (profil.get("npm"),))
@@ -83,20 +90,28 @@ def simpan_hasil_ekstraksi(profil: dict, daftar_nilai: list[dict]):
         conn.commit()
 
 
-def ambil_profil():
+def ambil_profil(npm: str = None):
     """Mengambil data profil mahasiswa terdaftar."""
-    if not DB_FILE.exists():
+    if not DB_PATH.exists():
         return None
-    with sqlite3.connect(DB_FILE) as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT npm, nama, jurusan, ipk_dokumen FROM profil_mahasiswa LIMIT 1")
+        if npm:
+            cursor.execute(
+                "SELECT npm, nama, jurusan, ipk_dokumen FROM profil_mahasiswa WHERE npm = ?",
+                (npm,),
+            )
+        else:
+            cursor.execute("SELECT npm, nama, jurusan, ipk_dokumen FROM profil_mahasiswa LIMIT 1")
         row = cursor.fetchone()
         return {"npm": row[0], "nama": row[1], "jurusan": row[2], "ipk_cetak": row[3]} if row else None
 
 
 def ambil_data_nilai(npm: str) -> pd.DataFrame:
     """Mengambil seluruh riwayat nilai mahasiswa dalam bentuk DataFrame pandas."""
-    with sqlite3.connect(DB_FILE) as conn:
+    if not DB_PATH.exists():
+        return pd.DataFrame()
+    with sqlite3.connect(DB_PATH) as conn:
         return pd.read_sql_query(
             """
             SELECT id, no, kode, mata_kuliah, sks, nilai, bobot, semester
@@ -112,7 +127,7 @@ def ambil_data_nilai(npm: str) -> pd.DataFrame:
 def update_nilai_matkul(id_matkul: int, nilai_baru: str):
     """Memperbarui nilai dan bobot mata kuliah tertentu untuk simulasi perbaikan nilai."""
     bobot_baru = BOBOT_MUTU.get(nilai_baru.upper(), 0.0)
-    with sqlite3.connect(DB_FILE) as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE riwayat_nilai SET nilai = ?, bobot = ? WHERE id = ?",
@@ -125,13 +140,12 @@ def jalankan_seeder():
     """Mengisi database dengan data pengujian dummy multi-semester."""
     profil_dummy = {
         "nama": "Mahasiswa Uji Coba",
-        "npm": "12345678",
+        "npm": "50422999",
         "jurusan": "Sistem Informasi",
         "ipk_cetak": "3.85",
     }
 
     nilai_dummy = [
-        # Semester 1
         {
             "semester": 1,
             "no": 1,
@@ -168,7 +182,6 @@ def jalankan_seeder():
             "nilai": "A",
             "bobot": 4.0,
         },
-        # Semester 2
         {
             "semester": 2,
             "no": 1,
@@ -205,7 +218,6 @@ def jalankan_seeder():
             "nilai": "A",
             "bobot": 4.0,
         },
-        # Semester 3
         {
             "semester": 3,
             "no": 1,
@@ -242,7 +254,6 @@ def jalankan_seeder():
             "nilai": "A",
             "bobot": 4.0,
         },
-        # Semester 4
         {
             "semester": 4,
             "no": 1,
